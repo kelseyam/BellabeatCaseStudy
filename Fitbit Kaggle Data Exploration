@@ -43,5 +43,12 @@ GROUP BY Id;
 SELECT da.id, da.Veryactiveminutes, da.Fairlyactiveminutes, da.Lightlyactiveminutes, da.TotalSteps, da.Calories
 FROM daily_activity AS da
 INNER JOIN weight_log ON weight_log.Id = da.Id; 
+
+#Find total amount of activity for each customer who logged weight
+SELECT weight_log.Id, SUM(da.VeryActiveMinutes) + SUM(da.Fairlyactiveminutes) + SUM(da.Lightlyactiveminutes) AS total_active_minutes
+FROM daily_activity AS da
+INNER JOIN weight_log ON  weight_log.Id = da.Id
+GROUP BY weight_log.Id;
+
 #Export weight_log into excel
-#Added sum of active minutes and found the difference in weight in weight_log in excel
+#Found the difference in weight in weight_log in excel
