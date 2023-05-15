@@ -1,0 +1,47 @@
+#Import specific datasets for all daily records, weight log, hourly intesnities and sleep log
+# Remove duplicate rows
+CREATE TABLE unique_sleep AS
+SELECT DISTINCT Id, SleepDay, TotalSleepRecords, TotalMinutesAsleep, TotalTimeInBed
+FROM Sleep_Day;
+
+#Finding the total number of active minutes in a day
+SELECT ActivityDate, COALESCE(SUM(Veryactiveminutes), 0) + COALESCE(SUM(Fairlyactiveminutes), 0) + COALESCE(SUM(lightlyactiveminutes), 0) AS TotalActiveMinutes
+FROM daily_activity
+GROUP BY ActivityDate
+ORDER BY (ActivityDate);
+#Export Created Table
+
+#Find time of day where the most activity is being recorded
+CREATE TABLE hourly_intensities1
+SELECT
+Id,
+Date (STR_TO_DATE((ActivityDate, '%m/%d/%Y %H:%i:%s %p')) AS Date,
+  TIME(STR_TO_DATE(ActivityDate, '%m/%d/%Y %H:%i:%s %p')) AS Time,
+  Intensity
+FROM daily_activity
+WHERE ActivityDate IS NOT NULL;
+SELECT 
+CASE 
+WHEN Time(Time) >= '06:00:00' AND Time(Time) < '12:00:00' THEN 'Morning'
+WHEN Time(Time) >= '12:00:00' AND Time(Time) < '18:00:00' THEN 'Afternoon'
+WHEN Time(Time) >= '18:00:00' AND Time(Time) < '21:00:00' THEN 'Evening'
+ELSE 'Night'
+END AS TimeOfDay,
+SUM(TotalIntensity) AS CountofActivity
+FROM hourly_intensities1
+GROUP BY TimeOfDay;
+
+#Find the total number of sleep and activity entries each person has 
+SELECT id, COUNT(DISTINCT ActivityDate) as NumEntries
+FROM daily_activity
+GROUP BY id;
+SELECT id, COUNT(DISTINCT SleepDate) as SleepEntry
+FROM unique_sleep
+GROUP BY Id;
+
+# uncover any correlation between weight loss and tracked activity
+SELECT da.id, da.Veryactiveminutes, da.Fairlyactiveminutes, da.Lightlyactiveminutes, da.TotalSteps, da.Calories
+FROM daily_activity AS da
+INNER JOIN weight_log ON weight_log.Id = da.Id; 
+#Export weight_log into excel
+#Added sum of active minutes and found the difference in weight in weight_log in excel
