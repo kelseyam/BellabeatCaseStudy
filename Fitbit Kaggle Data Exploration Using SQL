@@ -50,5 +50,15 @@ FROM daily_activity AS da
 INNER JOIN weight_log ON  weight_log.Id = da.Id
 GROUP BY weight_log.Id;
 
+#Find average steps for customers who logged weight change
+SELECT weight_log.Id, AVG(ds.Steptotal) AS avg_step 
+FROM daily_steps AS ds INNER JOIN weight_log ON weight_log.Id = ds.Id 
+GROUP BY weight_log.Id
+
+#find average steps taken
+SELECT Id, AVG(StepTotal)
+FROM daily_steps
+GROUP BY Id;
+
 #Export weight_log into excel
 #Found the difference in weight in weight_log in excel
